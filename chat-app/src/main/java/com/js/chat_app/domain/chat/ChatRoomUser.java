@@ -1,6 +1,6 @@
 package com.js.chat_app.domain.chat;
 
-import com.js.chat_app.domain.User;
+import com.js.chat_app.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

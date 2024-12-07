@@ -1,6 +1,6 @@
 package com.js.chat_app.service.chat;
 
-import com.js.chat_app.domain.User;
+import com.js.chat_app.domain.user.User;
 import com.js.chat_app.domain.chat.ChatRoom;
 import com.js.chat_app.domain.chat.ChatRoomUser;
 import com.js.chat_app.repository.chat.ChatRoomRepository;

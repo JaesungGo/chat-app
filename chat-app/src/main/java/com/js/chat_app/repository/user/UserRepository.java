@@ -1,6 +1,6 @@
 package com.js.chat_app.repository.user;
 
-import com.js.chat_app.domain.User;
+import com.js.chat_app.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

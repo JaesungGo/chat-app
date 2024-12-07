@@ -2,17 +2,17 @@ package com.js.chat_app.domain.chat;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "messages")
-@Data
+@Data @Builder
 public class ChatMessage {
 
     @Id
@@ -26,7 +26,7 @@ public class ChatMessage {
 
     private String senderName;
 
-    private TrayIcon.MessageType type;
+    private MessageType type;
 
     private String content;
 

@@ -1,21 +1,21 @@
-package com.js.chat_app.domain;
+package com.js.chat_app.domain.user;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 @Table(name ="users")
+@Data @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userid;
+    private Long userId;
 
     @Column(nullable = false)
-    private String username;
+    private String userName;
 
     @Column(nullable = false)
     private String password;
@@ -26,10 +26,13 @@ public class User {
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
-    private String status;
+    private Status status;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Column(name = "last_logout_at")
+    private LocalDateTime lastLogoutAt;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -43,6 +46,18 @@ public class User {
     @PrePersist
     public void onCreate(){
         this.createdAt = LocalDateTime.now();
+    }
+
+    public enum Role{
+        MEMBER,
+        ADMIN
+    }
+
+    public enum Status{
+        ACTIVE,
+        INACTIVE,
+        NONE
+
     }
 
 }

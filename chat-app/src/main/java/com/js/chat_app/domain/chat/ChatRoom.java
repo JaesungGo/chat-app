@@ -1,6 +1,7 @@
 package com.js.chat_app.domain.chat;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;

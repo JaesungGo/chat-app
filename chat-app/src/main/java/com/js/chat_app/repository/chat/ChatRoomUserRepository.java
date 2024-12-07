@@ -1,6 +1,6 @@
 package com.js.chat_app.repository.chat;
 
-import com.js.chat_app.domain.User;
+import com.js.chat_app.domain.user.User;
 import com.js.chat_app.domain.chat.ChatRoom;
 import com.js.chat_app.domain.chat.ChatRoomUser;
 import org.springframework.data.jpa.repository.JpaRepository;
