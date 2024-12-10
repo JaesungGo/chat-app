@@ -37,12 +37,24 @@ public class AuthService {
         jwtProvider.addCookie(token,httpServletResponse);
     }
 
-    // 현재 유저정보 찾기
+    // 현재 사용자 정보 찾기 (쿠키)
     public User getCurUser(HttpServletRequest httpServletRequest){
         String token = jwtProvider.cookieToToken(httpServletRequest);
         String userEmail = jwtProvider.getEmail(token);
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(()-> new RuntimeException("토큰의 이메일이 DB의 이메일과 다르거나 없음"));
+    }
+
+
+     // 현재 사용자 정보 찾기 (토큰)
+    public User getUserFromToken(String token) {
+        if (!jwtProvider.validateToken(token)) {
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
+        }
+
+        String userEmail = jwtProvider.getEmail(token);
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("토큰의 이메일이 DB의 이메일과 다르거나 없음"));
     }
 
     // 로그 아웃
