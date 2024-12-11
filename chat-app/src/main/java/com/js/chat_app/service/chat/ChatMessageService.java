@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j @RequiredArgsConstructor
@@ -48,6 +49,30 @@ public class ChatMessageService {
 
         return savedMessage;
     }
+
+    /**
+     * 읽은 메시지 수신 표시
+     * @param messageId
+     * @param userId
+     */
+    public void readMessageCheck(String messageId, Long userId){
+        ChatMessage message = chatMessageRepository.findById(messageId)
+                .orElseThrow(()-> new RuntimeException("메시지를 찾을 수 없습니다."));
+
+        // readUser list에 추가
+        if (!message.getReadUserId().contains(userId)) {
+            message.getReadUserId().add(userId);
+            message.setStatus(ChatMessage.MessageStatus.READ);
+            chatMessageRepository.save(message);
+        }
+
+        messagingTemplate.convertAndSend(
+                "/topic/room." + message.getRoomId() + ".read",
+                Map.of("messageId",messageId,"userId",userId)
+        );
+
+    }
+
 
     /**
      * 채팅방의 이전 메시지를 조회하기 위한 페이징 처리 (스크롤 시)
