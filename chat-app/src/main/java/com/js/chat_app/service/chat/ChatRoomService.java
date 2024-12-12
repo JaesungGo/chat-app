@@ -8,6 +8,8 @@ import com.js.chat_app.repository.chat.ChatRoomUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
@@ -55,6 +57,25 @@ public class ChatRoomService {
         chatRoomUser.setRoomRole(ChatRoomUser.RoomRole.ROOM_MEMBER);
 
         chatRoomUserRepository.save(chatRoomUser);
+    }
+
+    /**
+     * 모든 방 목록 가져오기
+     * @return
+     */
+    public List<ChatRoom> getAllRooms(){
+        return chatRoomRepository.findAll();
+    }
+
+    /**
+     * 유저가 방에 있는 지 확인
+     */
+    public boolean isUserValidate(Long roomId, Long userId){
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(()-> new RuntimeException("채팅방이 없습니다."));
+
+        return chatRoomUserRepository.findByChatRoomAndUser(chatRoom, User.builder().userId(userId).build()).isPresent();
+
     }
 
 }

@@ -20,4 +20,9 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Long
      */
     Optional<ChatRoomUser> findByChatRoomAndUser(ChatRoom chatroom, User user);
 
+    /**
+     * 채팅방 참여 인원을 카운트
+     */
+    Long countByChatRoom(ChatRoom chatRoom);
+
 }

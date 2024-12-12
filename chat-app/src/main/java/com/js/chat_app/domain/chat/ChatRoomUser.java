@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class ChatRoomUser {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatuserId;
+    private Long chatUserId;
 
     @ManyToOne @JoinColumn(name = "user_id")
     private User user;

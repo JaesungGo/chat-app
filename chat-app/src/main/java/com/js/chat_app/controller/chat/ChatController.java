@@ -13,6 +13,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
@@ -40,20 +42,39 @@ public class ChatController {
     /**
      * 채팅방 입장시 호출 -> 메시지 전송
      * "/app/chat.enter"로 전송하는 메시지에 대하여 /topic/room.{roomId}의 사용자들에게 브로드 캐스트
-     * @param request
+     * @param payload
      * @param token
      * @return
      */
     @MessageMapping("/chat.enter")
     @SendTo("/topic/room.{roomId}")
-    public ChatMessageResponse enter(@Payload ChatMessageRequest request, @Header("Authorization") String token){
+    public void enter(@Payload Map<String,Long> payload, @Header("Authorization") String token){
 
+        Long roomId = payload.get("roomId");
         User enterUser = authService.getUserFromToken(token);
 
-        request.setType(ChatMessage.MessageType.SYSTEM);
-        request.setContent(enterUser.getUserName()+ "님이 입장하셨습니다.");
+        chatMessageService.enterRoom(roomId, enterUser.getUserId());
 
-        ChatMessage message = chatMessageService.saveAndSendMessage(request,enterUser);
-        return new ChatMessageResponse(message);
+        ChatMessageRequest chatMessageRequest = new ChatMessageRequest();
+        chatMessageRequest.setRoomId(roomId);
+        chatMessageRequest.setType(ChatMessage.MessageType.SYSTEM);
+        chatMessageRequest.setContent(enterUser.getUserName()+ "님이 입장하셨습니다.");
+
+        sendMessage(chatMessageRequest,token);
+
+    }
+
+    @MessageMapping("/chat.leave")
+    @SendTo("/topic/room.{roomId}")
+    public void leave(@Payload Map<String,Long> payload, @Header("Authorization") String token){
+        Long roomId = payload.get("roomId");
+        User leaveUser = authService.getUserFromToken(token);
+
+        ChatMessageRequest chatMessageRequest = new ChatMessageRequest();
+        chatMessageRequest.setRoomId(roomId);
+        chatMessageRequest.setType(ChatMessage.MessageType.SYSTEM);
+        chatMessageRequest.setContent(leaveUser.getUserName()+ "님이 퇴장하셨습니다.");
+
+        sendMessage(chatMessageRequest,token);
     }
 }

@@ -35,7 +35,6 @@ public class ChatMessage {
 
     private MessageStatus status;
 
-    private LocalDateTime readAt;
     private List<Long> readUserId;
     public enum MessageType{
         TEXT,
