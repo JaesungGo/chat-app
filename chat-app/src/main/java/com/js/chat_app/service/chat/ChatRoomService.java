@@ -3,12 +3,15 @@ package com.js.chat_app.service.chat;
 import com.js.chat_app.domain.user.User;
 import com.js.chat_app.domain.chat.ChatRoom;
 import com.js.chat_app.domain.chat.ChatRoomUser;
+import com.js.chat_app.repository.chat.ChatMessageRepository;
 import com.js.chat_app.repository.chat.ChatRoomRepository;
 import com.js.chat_app.repository.chat.ChatRoomUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +19,8 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final MessageCountService messageCountService;
 
     /**
      * 방을 생성하고, 방장을 방에다 추가
@@ -75,6 +80,43 @@ public class ChatRoomService {
                 .orElseThrow(()-> new RuntimeException("채팅방이 없습니다."));
 
         return chatRoomUserRepository.findByChatRoomAndUser(chatRoom, User.builder().userId(userId).build()).isPresent();
+
+    }
+
+    /**
+     * 채팅방 나가기
+     * - 채팅방 마지막 사용자일 경우 채팅방 삭제
+     * - 그렇지 않은 경우 사용자만 제거
+     * @param roomId
+     * @param user
+     */
+    @Transactional
+    public void leaveRoom(Long roomId, User user){
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(()-> new RuntimeException("채팅방을 찾을 수 없습니다."));
+
+        ChatRoomUser chatRoomUser = chatRoomUserRepository.findByChatRoomAndUser(chatRoom,user)
+                .orElseThrow(()-> new RuntimeException("해당 채팅방에서 사용자를 찾을 수 없습니다."));
+
+        Long userCount = chatRoomUserRepository.countByChatRoom(chatRoom);
+
+        if(userCount <= 1) {
+            chatRoomRepository.delete(chatRoom);
+            chatRoomUserRepository.delete(chatRoomUser);
+            chatMessageRepository.deleteByRoomId(roomId);
+
+        }else{
+            chatRoomUserRepository.delete(chatRoomUser);
+            messageCountService.resetCount(roomId,user.getUserId());
+        }
+
+        if(chatRoomUser.getRoomRole() == ChatRoomUser.RoomRole.ROOM_MANAGER){
+            ChatRoomUser nextManager = chatRoomUserRepository.findFirstByChatRoomAndRoomRoleNot(chatRoom, ChatRoomUser.RoomRole.ROOM_MANAGER).orElseThrow(()->new RuntimeException("방장을 넘길 수 없습니다."));
+
+            nextManager.setRoomRole(ChatRoomUser.RoomRole.ROOM_MANAGER);
+            chatRoomUserRepository.save(nextManager);
+        }
 
     }
 

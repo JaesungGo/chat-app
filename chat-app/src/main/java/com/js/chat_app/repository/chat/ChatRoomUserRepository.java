@@ -25,4 +25,9 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Long
      */
     Long countByChatRoom(ChatRoom chatRoom);
 
+    /**
+     * 채팅방에서 방장이 아닌 첫 번째 사용자를 찾아 반환
+     */
+    Optional<ChatRoomUser> findFirstByChatRoomAndRoomRoleNot(ChatRoom chatRoom, ChatRoomUser.RoomRole roomRole);
+
 }

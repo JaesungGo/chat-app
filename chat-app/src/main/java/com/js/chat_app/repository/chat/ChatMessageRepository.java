@@ -15,4 +15,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     // 특정 채팅방 ID와 주어진 시간 이후에 생성된 메시지 반환
     List<ChatMessage> findByRoomIdAndCreatedAtGreaterThan(Long roomId, LocalDateTime dateTime);
 
+    // 채팅방의 메시지 삭제 
+    void deleteByRoomId(Long roomId);
+
 }

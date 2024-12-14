@@ -5,13 +5,17 @@ import com.js.chat_app.domain.chat.chatDTO.ChatMessageRequest;
 import com.js.chat_app.domain.chat.chatDTO.ChatMessageResponse;
 import com.js.chat_app.domain.user.User;
 import com.js.chat_app.service.chat.ChatMessageService;
+import com.js.chat_app.service.chat.ChatRoomService;
 import com.js.chat_app.service.jwt.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Map;
 
@@ -20,6 +24,7 @@ import java.util.Map;
 public class ChatController {
 
     private final AuthService authService;
+    private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
 
     /**
@@ -37,6 +42,21 @@ public class ChatController {
         ChatMessage message = chatMessageService.saveAndSendMessage(request,sender);
 
         return new ChatMessageResponse(message);
+    }
+
+    /**
+     * 채팅방 입장 처리
+     * 1. HTTP로 채팅방 참가 처리 (DB 저장)
+     * 2. WebSocket으로 입장 메시지 전송
+     */
+    @PostMapping("/api/chat/rooms/{roomId}/join")
+    public ResponseEntity<Void> joinRoom(
+            @PathVariable Long roomId,
+            @Header("Authorization") String token
+    ) {
+        User user = authService.getUserFromToken(token);
+        chatRoomService.addUser(roomId, user);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -69,6 +89,8 @@ public class ChatController {
     public void leave(@Payload Map<String,Long> payload, @Header("Authorization") String token){
         Long roomId = payload.get("roomId");
         User leaveUser = authService.getUserFromToken(token);
+
+        chatRoomService.leaveRoom(roomId,leaveUser);
 
         ChatMessageRequest chatMessageRequest = new ChatMessageRequest();
         chatMessageRequest.setRoomId(roomId);

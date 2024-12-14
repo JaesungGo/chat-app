@@ -49,22 +49,6 @@ public class ChatRoomController {
     }
 
     /**
-     * 채팅방 참가 호출
-     * @param roomId
-     * @param token
-     * @return
-     */
-    @PostMapping("/rooms/{roomId}/join")
-    public ResponseEntity<?> joinRoom(
-            @PathVariable Long roomId,
-            @Header("Authorization") String token
-    ){
-        User user = authService.getUserFromToken(token);
-        chatRoomService.addUser(roomId, user);
-        return ResponseEntity.ok().build();
-    }
-
-    /**
      * 새로 들어간 채팅방의 메시지 이력 호출 (0~20)
      * @param roomId
      * @param page
